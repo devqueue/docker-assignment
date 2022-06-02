@@ -1,4 +1,8 @@
 from flask import Flask, request
+import os
+import requests
+
+
 app = Flask(__name__)
 
 @app.route('/')
@@ -14,12 +18,18 @@ def checksum():
         if (content_type == 'application/json'):
             json = request.json
             param_exists = json.get('file', False)
+        
             if not param_exists:
                 json = {
                     "file": "null",
                     "error": "invalid JSON input",
                 }
-            
+            else:
+                if not os.path.exists(f"/data/{param_exists}"):
+                    json['error'] = "File not found."
+                else:
+                    requests.post(url='localhost:6000', json=json)
+
         return json
     else:
         return 'Send a json via POST'
